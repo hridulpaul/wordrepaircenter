@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>স্মার্ট শব্দ ও ভাষা পরিবর্তনকারী টুল</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Poppins:wght@700;800&display=swap');
+
+        html, body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Hind Siliguri', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        /* মেইন হেডিং স্টাইল */
+        .main-app-heading {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .main-app-heading h1 {
+            font-family: 'Hind Siliguri', 'Poppins', sans-serif;
+            font-size: 46px;
+            font-weight: 800;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        /* হেডিংয়ের নিচের আন্ডারলাইনটি লম্বা ও মসৃণ করা হয়েছে */
+        .main-app-heading::after {
+            content: '';
+            display: block;
+            width: 140px; /* আগে ৬০px ছিল, এখন বাড়িয়ে ১৪০px করা হয়েছে */
+            height: 4px;  /* লাইনটি দেখতে আরেকটু স্লিম ও মডার্ন করা হয়েছে */
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            margin: 14px auto 0 auto;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 50px;
+            border-radius: 24px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.06), 0 8px 20px rgba(0, 0, 0, 0.03);
+            width: 100%;
+            max-width: 1100px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-sizing: border-box;
+        }
+
+        /* সুইচ কন্ট্রোল স্টাইল */
+        .language-toggle-container {
+            position: absolute;
+            top: 35px;
+            right: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .lang-switch {
+            position: relative;
+            display: flex;
+            background-color: #e4e8f0;
+            padding: 4px;
+            border-radius: 30px;
+            cursor: pointer;
+            user-select: none;
+            width: 160px;
+            height: 40px;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #dcdde1;
+        }
+
+        .lang-option {
+            flex: 1;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #7f8c8d;
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+
+        .lang-switch::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 76px;
+            height: 32px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border-radius: 25px;
+            z-index: 1;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), width 0.3s ease;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .lang-switch.bn-active .lang-option.opt-bn {
+            color: #ffffff;
+        }
+
+        .lang-switch.en-active::before {
+            transform: translateX(76px);
+        }
+
+        .lang-switch.en-active .lang-option.opt-en {
+            color: #ffffff;
+        }
+
+        h2 {
+            text-align: left;
+            color: #1a2a3a;
+            margin-top: 0;
+            margin-bottom: 40px;
+            font-size: 34px;
+            font-weight: 700;
+            border-left: 6px solid #3498db;
+            padding-left: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            color: #34495e;
+            font-size: 18px;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 18px 22px;
+            border: 1px solid #dcdde1;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 18px;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            border-color: #3498db;
+            background-color: #ffffff;
+            outline: none;
+            box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.15);
+        }
+
+        textarea::placeholder, input::placeholder {
+            color: #a0aec0;
+            font-weight: 400;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 200px;
+            line-height: 1.8;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-top: 15px;
+        }
+
+        .input-field {
+            width: 100%;
+        }
+
+        .hint {
+            font-size: 14px;
+            color: #95a5a6;
+            margin-top: 8px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 40px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(52, 152, 219, 0.4);
+        }
+
+        .result-box {
+            margin-top: 45px;
+            padding: 30px;
+            background-color: #fafbfc;
+            border: 1px solid #e1e8ed;
+            border-radius: 16px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e1e8ed;
+            padding-bottom: 18px;
+            margin-bottom: 25px;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #1a2a3a;
+            font-size: 19px;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 5px 18px rgba(46, 204, 113, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3);
+        }
+
+        .copy-btn.copied {
+            background: #34495e;
+            box-shadow: none;
+        }
+
+        #outputParagraph {
+            height: 200px;
+            background-color: #ffffff;
+            border: 1px solid #dcdde1;
+            font-family: inherit;
+            line-height: 1.8;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        #outputParagraph:focus {
+            border-color: #2ecc71;
+            outline: none;
+            box-shadow: 0 0 0 5px rgba(46, 204, 113, 0.15);
+        }
+
+        .pro-footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px dashed #e1e8ed;
+            text-align: center;
+        }
+
+        .footer-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #95a5a6;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 25px;
+        }
+
+        .contact-icon-box {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .icon-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .icon-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+
+        .icon-whatsapp:hover {
+            transform: scale(1.15);
+            box-shadow: 0 8px 22px rgba(37, 211, 102, 0.35);
+        }
+
+        .icon-email {
+            background-color: #ea4335;
+            color: white;
+        }
+
+        .icon-email:hover {
+            transform: scale(1.15);
+            box-shadow: 0 8px 22px rgba(234, 67, 53, 0.35);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                max-width: 100%;
+                padding: 35px;
+            }
+            .input-group {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            body { padding: 20px 10px; }
+            .container { padding: 25px; }
+            .main-app-heading h1 { font-size: 32px; }
+            h2 { font-size: 24px; margin-top: 70px; }
+            .language-toggle-container { top: 20px; right: 25px; }
+            .main-app-heading::after { width: 100px; } /* মোবাইলে কিছুটা সামঞ্জস্যপূর্ণ রাখার জন্য */
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-app-heading">
+    <h1 id="mainAppTitle">শব্দ মেরামত কেন্দ্র</h1>
+</div>
+
+<div class="container">
+    <div class="language-toggle-container">
+        <div id="langSwitchBtn" class="lang-switch bn-active" onclick="toggleLanguage()">
+            <div class="lang-option opt-bn">বাংলা</div>
+            <div class="lang-option opt-en">English</div>
+        </div>
+    </div>
+
+    <h2 id="uiTitle">শব্দ পরিবর্তন, এডিট ও কপি টুল</h2>
+    
+    <label id="lblParagraph" for="inputParagraph">আপনার অনুচ্ছেদটি এখানে দিন:</label>
+    <textarea id="inputParagraph" placeholder="উদাহরণ: এই ল্যাপটপটি অনেক ছোট এবং ধীরগতির, কিন্তু এটার ডিজাইন অনেক খারাপ।"></textarea>
+    
+    <div class="input-group">
+        <div class="input-field">
+            <label id="lblFind" for="findWords">যে শব্দগুলো বাদ দিতে চান:</label>
+            <input type="text" id="findWords" placeholder="যেমন: ছোট, ধীরগতির, খারাপ">
+            <span id="hintFind" class="hint">* শব্দগুলো কমা (,) দিয়ে আলাদা করুন</span>
+        </div>
+        <div class="input-field">
+            <label id="lblReplace" for="replaceWords">নতুন যে শব্দগুলো বসাতে চান:</label>
+            <input type="text" id="replaceWords" placeholder="যেমন: বড়, দ্রুতগতির, ভালো">
+            <span id="hintReplace" class="hint">* একই ক্রমানুসারে কমা (,) দিয়ে লিখুন</span>
+        </div>
+    </div>
+    
+    <button id="btnReplace" class="action-btn" onclick="replaceMultipleWords()">সব শব্দ একসাথে পরিবর্তন করুন</button>
+    
+    <div class="result-box" id="resultBox">
+        <div class="result-header">
+            <span id="uiResultTitle" class="result-title">পরিবর্তিত অনুচ্ছেদ (এখান থেকে এডিট করতে পারবেন):</span>
+            <button class="copy-btn" id="copyBtn" onclick="copyToClipboard()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="copyBtnText">কপি করুন</span>
+            </button>
+        </div>
+        <textarea id="outputParagraph" placeholder="পরিবর্তিত লেখা এখানে দেখাবে..."></textarea>
+    </div>
+
+    <div class="pro-footer">
+        <div id="uiFooterTitle" class="footer-title">জরুরী প্রয়োজনে যোগাযোগ করুন</div>
+        <div class="contact-icon-box">
+            <a href="https://wa.me/8801568968385" target="_blank" class="icon-btn icon-whatsapp" title="WhatsApp Business">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.498 1.451 5.438 1.452 5.393 0 9.778-4.383 9.781-9.774.002-2.612-1.011-5.067-2.855-6.912-1.843-1.844-4.295-2.858-6.909-2.859-5.397 0-9.781 4.384-9.785 9.776-.001 1.997.521 3.947 1.512 5.672l-.999 3.65 3.737-.981zm11.304-6.816c-.322-.16-.1.895-.482.16-.322-.16-1.897-.934-2.594-1.545-.513-.45-.424-.72.1-.1.323-.322 1.06-.935 1.163-1.258.102-.323.051-.599-.026-.76-.076-.16-.684-1.648-.938-2.261-.249-.597-.501-.516-.685-.525l-.583-.008c-.204 0-.536.077-.817.383-.28.307-1.072 1.049-1.072 2.559 0 1.51 1.098 2.972 1.251 3.175.153.204 2.161 3.299 5.234 4.625.731.315 1.302.503 1.747.645.736.233 1.407.2 1.938.121.592-.088 1.819-.744 2.074-1.464.256-.72.256-1.336.179-1.464-.076-.129-.282-.204-.604-.365z"/></svg>
+            </a>
+            <a href="mailto:hridulpaul9830@gmail.com" class="icon-btn icon-email" title="Email Us">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const uiTranslations = {
+        bn: {
+            mainTitle: "শব্দ মেরামত কেন্দ্র",
+            title: "শব্দ পরিবর্তন, এডিট ও কপি টুল",
+            lblParagraph: "আপনার অনুচ্ছেদটি এখানে দিন:",
+            placeholderParagraph: "উদাহরণ: এই ল্যাপটপটি অনেক ছোট এবং ধীরগতির, কিন্তু এটার ডিজাইন অনেক খারাপ।",
+            lblFind: "যে শব্দগুলো বাদ দিতে চান:",
+            placeholderFind: "যেমন: ছোট, ধীরগতির, খারাপ",
+            hintFind: "* শব্দগুলো কমা (,) দিয়ে আলাদা করুন",
+            lblReplace: "নতুন যে শব্দগুলো বসাতে চান:",
+            placeholderReplace: "যেমন: বড়, দ্রুতগতির, ভালো",
+            hintReplace: "* একই ক্রমানুসারে কমা (,) দিয়ে লিখুন",
+            btnReplace: "সব শব্দ একসাথে পরিবর্তন করুন",
+            resultTitle: "পরিবর্তিত অনুচ্ছেদ (এখান থেকে এডিট করতে পারবেন):",
+            placeholderOutput: "পরিবর্তিত লেখা এখানে দেখাবে...",
+            copyBtnText: "কপি করুন",
+            copiedBtnText: "কপি হয়েছে!",
+            alertMsg: "দয়া করে অনুচ্ছেদ এবং বাদ দেওয়ার শব্দগুলো লিখুন।",
+            errorCopy: "কপি করতে সমস্যা হয়েছে, অনুগ্রহ করে ম্যানুয়ালি সিলেক্ট করে কপি করুন।",
+            footerTitle: "জরুরী প্রয়োজনে যোগাযোগ করুন"
+        },
+        en: {
+            mainTitle: "Word Repair Center",
+            title: "Word Replacer, Edit & Copy Tool",
+            lblParagraph: "Enter your paragraph here:",
+            placeholderParagraph: "Example: This laptop is very small and slow, but its design is very bad.",
+            lblFind: "Words to find/remove:",
+            placeholderFind: "e.g., small, slow, bad",
+            hintFind: "* Separate words with commas (,)",
+            lblReplace: "Words to replace with:",
+            placeholderReplace: "e.g., big, fast, good",
+            hintReplace: "* Enter in the same order separated by commas (,)",
+            btnReplace: "Replace All Words",
+            resultTitle: "Modified Paragraph (You can edit from here):",
+            placeholderOutput: "Modified text will appear here...",
+            copyBtnText: "Copy Text",
+            copiedBtnText: "Copied!",
+            alertMsg: "Please fill in the paragraph and words to find.",
+            errorCopy: "Failed to copy, please select and copy manually.",
+            footerTitle: "Contact for Urgent Support"
+        }
+    };
+
+    let currentLang = "bn";
+
+    function toggleLanguage() {
+        const switchBtn = document.getElementById('langSwitchBtn');
+        
+        if (currentLang === "bn") {
+            currentLang = "en";
+            switchBtn.classList.remove('bn-active');
+            switchBtn.classList.add('en-active');
+        } else {
+            currentLang = "bn";
+            switchBtn.classList.remove('en-active');
+            switchBtn.classList.add('bn-active');
+        }
+        
+        updateUI();
+    }
+
+    function updateUI() {
+        const ui = uiTranslations[currentLang];
+
+        document.getElementById('mainAppTitle').innerText = ui.mainTitle;
+        document.getElementById('uiTitle').innerText = ui.title;
+        document.getElementById('lblParagraph').innerText = ui.lblParagraph;
+        document.getElementById('inputParagraph').placeholder = ui.placeholderParagraph;
+        document.getElementById('lblFind').innerText = ui.lblFind;
+        document.getElementById('findWords').placeholder = ui.placeholderFind;
+        document.getElementById('hintFind').innerText = ui.hintFind;
+        document.getElementById('lblReplace').innerText = ui.lblReplace;
+        document.getElementById('replaceWords').placeholder = ui.placeholderReplace;
+        document.getElementById('hintReplace').innerText = ui.hintReplace;
+        document.getElementById('btnReplace').innerText = ui.btnReplace;
+        document.getElementById('uiResultTitle').innerText = ui.resultTitle;
+        document.getElementById('outputParagraph').placeholder = ui.placeholderOutput;
+        document.getElementById('uiFooterTitle').innerText = ui.footerTitle;
+        
+        if(!document.getElementById('copyBtn').classList.contains('copied')) {
+            document.getElementById('copyBtnText').innerText = ui.copyBtnText;
+        } else {
+            document.getElementById('copyBtnText').innerText = ui.copiedBtnText;
+        }
+
+        document.getElementById('inputParagraph').value = "";
+        document.getElementById('findWords').value = "";
+        document.getElementById('replaceWords').value = "";
+        document.getElementById('resultBox').classList.remove('show');
+    }
+
+    function replaceMultipleWords() {
+        let paragraph = document.getElementById('inputParagraph').value;
+        const findInput = document.getElementById('findWords').value;
+        const replaceInput = document.getElementById('replaceWords').value;
+        
+        if (!paragraph || !findInput) {
+            alert(uiTranslations[currentLang].alertMsg);
+            return;
+        }
+        
+        const findArray = findInput.split(',').map(item => item.trim());
+        const replaceArray = replaceInput.split(',').map(item => item.trim());
+        
+        for (let i = 0; i < findArray.length; i++) {
+            if (findArray[i] === "") continue;
+            
+            const replaceWith = replaceArray[i] !== undefined ? replaceArray[i] : "";
+            const escapedWord = findArray[i].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(escapedWord, 'g');
+            
+            paragraph = paragraph.replace(regex, replaceWith);
+        }
+        
+        document.getElementById('outputParagraph').value = paragraph;
+        
+        const copyBtn = document.getElementById('copyBtn');
+        copyBtn.classList.remove('copied');
+        document.getElementById('copyBtnText').innerText = uiTranslations[currentLang].copyBtnText;
+        
+        document.getElementById('resultBox').classList.add('show');
+    }
+
+    function copyToClipboard() {
+        const outputText = document.getElementById('outputParagraph').value;
+        if (!outputText) return;
+        
+        navigator.clipboard.writeText(outputText).then(() => {
+            const copyBtn = document.getElementById('copyBtn');
+            const copyBtnText = document.getElementById('copyBtnText');
+            
+            copyBtn.classList.add('copied');
+            copyBtnText.innerText = uiTranslations[currentLang].copiedBtnText;
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyBtnText.innerText = uiTranslations[currentLang].copyBtnText;
+            }, 2000);
+        }).catch(err => {
+            alert(uiTranslations[currentLang].errorCopy);
+        });
+    }
+</script>
+
+</body>
+</html>
